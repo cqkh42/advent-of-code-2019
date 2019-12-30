@@ -6,8 +6,10 @@ class Computer:
         self.intcode = intcode.copy()
         self.inputs = inputs
         self.output = None
+        self.outputs = []
         self.pointer = 0
         self.complete = False
+        self.relative_base = 0
 
         self.opcode_map = {
             1: (self.opcode_1, 3),
@@ -18,19 +20,36 @@ class Computer:
             6: (self.opcode_6, 2),
             7: (self.opcode_7, 3),
             8: (self.opcode_8, 3),
+            9: (self.opcode_9, 1),
             99: (self.opcode_99, 0)
         }
 
-    def get_value(self, param, mode):
-        if not mode:
-            return self.intcode[param]
-        else:
-            return param
+    def read_intcode(self, param, mode):
+        try:
+            if mode == 0:
+                return self.intcode[param]
+            elif mode == 1:
+                return param
+            elif mode == 2:
+                loc = self.relative_base + param
+                return self.intcode[loc]
+            else:
+                print("whoops", param, mode)
+        except IndexError:
+            return 0
 
-    def get_values(self, params, modes):
-        zipped = zip(params, modes)
-        values = [self.get_value(*inputs) for inputs in zipped]
-        return values
+    def write_intcode(self, param, value, mode):
+        if mode == 0:
+            position = param
+        if mode == 1:
+            position = param
+        if mode == 2:
+            position = param + self.relative_base
+        try:
+            self.intcode[position] = value
+        except IndexError:
+            self.intcode += [0] * (position + 1 - len(self.intcode))
+            self.intcode[position] = value
 
     def revert_pointer_if_modified(self, func, params, modes):
         original_value_at_pointer = self.intcode[self.pointer]
@@ -39,45 +58,57 @@ class Computer:
             self.pointer = func_result
 
     def opcode_1(self, params, modes):
-        values = self.get_values(params, modes)
-        self.intcode[params[2]] = sum(values[:2])
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        self.write_intcode(params[2], value_0 + value_1, modes[2])
         return self.pointer + len(params) + 1
 
     def opcode_2(self, params, modes):
-        values = self.get_values(params, modes)
-        self.intcode[params[2]] = values[0] * values[1]
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        self.write_intcode(params[2], value_0 * value_1, modes[2])
         return self.pointer + len(params) + 1
 
-    def opcode_3(self, params, _):
+    def opcode_3(self, params, modes):
         input_ = self.inputs.pop(0)
-        self.intcode[params[0]] = input_
+        self.write_intcode(params[0], input_, modes[0])
         return self.pointer + len(params) + 1
 
     def opcode_4(self, params, modes):
-        val = self.get_value(params[0], modes[0])
+        val = self.read_intcode(params[0], modes[0])
         self.output = val
+        self.outputs.append(val)
         return self.pointer + len(params) + 1
 
     def opcode_5(self, params, modes):
-        values = self.get_values(params, modes)
-        result = values[1] if values[0] else self.pointer + len(params) + 1
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        result = value_1 if value_0 else self.pointer + len(params) + 1
         return result
 
     def opcode_6(self, params, modes):
-        values = self.get_values(params, modes)
-        result = values[1] if not values[0] else self.pointer + len(params) + 1
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        result = value_1 if not value_0 else self.pointer + len(params) + 1
         return result
 
     def opcode_7(self, params, modes):
-        values = self.get_values(params, modes)
-        result = int(values[0] < values[1])
-        self.intcode[params[2]] = result
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        result = int(value_0 < value_1)
+        self.write_intcode(params[2], result, modes[2])
         return self.pointer + len(params) + 1
 
     def opcode_8(self, params, modes):
-        values = self.get_values(params, modes)
-        result = int(values[0] == values[1])
-        self.intcode[params[2]] = result
+        value_0 = self.read_intcode(params[0], modes[0])
+        value_1 = self.read_intcode(params[1], modes[1])
+        result = int(value_0 == value_1)
+        self.write_intcode(params[2], result, modes[2])
+        return self.pointer + len(params) + 1
+
+    def opcode_9(self, params, modes):
+        value = self.read_intcode(params[0], modes[0])
+        self.relative_base += value
         return self.pointer + len(params) + 1
 
     def opcode_99(self, params, modes):
