@@ -5,8 +5,9 @@ class Computer:
     def __init__(self, intcode, inputs):
         self.intcode = intcode.copy()
         self.inputs = inputs
-        self.outputs = []
+        self.output = None
         self.pointer = 0
+        self.complete = False
 
         self.opcode_map = {
             1: (self.opcode_1, 3),
@@ -54,7 +55,7 @@ class Computer:
 
     def opcode_4(self, params, modes):
         val = self.get_value(params[0], modes[0])
-        self.outputs.append(val)
+        self.output = val
         return self.pointer + len(params) + 1
 
     def opcode_5(self, params, modes):
@@ -104,5 +105,6 @@ class Computer:
             try:
                 self.run_iteration()
             except StopIteration:
+                self.complete = True
                 break
         return self
