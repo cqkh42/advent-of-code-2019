@@ -31,4 +31,5 @@ jobs:
       run: |
         echo Add other actions to build,
         echo test, and deploy your project.
-        docker build . -t test-container
+        docker build . -t docker.pkg.github.com/cqkh42/advent-of-code-2019/environment:latest
+        docker push docker.pkg.github.com/cqkh42/advent-of-code-2019/environment:latest
