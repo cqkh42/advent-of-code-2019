@@ -4,7 +4,7 @@ import functools
 class Computer:
     def __init__(self, intcode, inputs):
         self.intcode = intcode.copy()
-        self.inputs = inputs
+        self.inputs = inputs.copy()
         self.output = None
         self.outputs = []
         self.pointer = 0
@@ -33,8 +33,6 @@ class Computer:
             elif mode == 2:
                 loc = self.relative_base + param
                 return self.intcode[loc]
-            else:
-                print("whoops", param, mode)
         except IndexError:
             return 0
 
