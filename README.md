@@ -3,13 +3,15 @@
 ## TODO
 
 * Finish the challenges
-* Figure out github actions
 * tidy notebook code
 * tidy compouter code
 * tidy markdown
 * make them all run quick
 * link to site for all
 * rename inputs
+* package readme
+* delete old package
+* main readme
 
 | Day | Part 1 Complete | Part 2 Complete | Part 1 Fast | Part 2 Fast | Part 1 Tests | Part 2 Tests | Part 1 Text | Part 2 Text |
 |-----|-----------------|-----------------|-------------|-------------|--------------|--------------|-------------|-------------|
