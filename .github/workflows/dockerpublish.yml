@@ -57,6 +57,4 @@ jobs:
 
           docker tag image $IMAGE_ID:$VERSION
           
-          docker tag image $IMAGE_ID:test-version
-          docker push $IMAGE_ID:test-version
           docker push $IMAGE_ID:$VERSION
