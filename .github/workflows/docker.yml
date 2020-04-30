@@ -11,7 +11,7 @@ on:
       - v*
 
 env:
-  IMAGE_NAME: environment
+  IMAGE_NAME: advent-of-code-2019
 
 jobs:
   # Push image to GitHub Packages.
